@@ -1,11 +1,7 @@
-.allRecipeMainDiv{
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    grid-gap: 20px;
+.icon{
+    cursor: pointer;
 }
 
-@media (max-width:400px) {
-    .allRecipeMainDiv{
-        display: block;
-    }
+.unreadMail:hover{
+    background-color: rgb(190, 238, 245);
 }

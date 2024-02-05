@@ -1,50 +1,74 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
-import IconButton from '@mui/material/IconButton'
-import CloseIcon from '@mui/icons-material/Close'
-import Snackbar from '@mui/material/Snackbar'
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
-import axios from 'axios'
-import './signup.css'
+import React from 'react'
+import { TextField } from '@mui/material'
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Button from '@mui/material/Button';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 
 function Signup() {
-    let count = 0;
+    var count = 0
     let navigate = useNavigate()
-    let [open, setOpen] = useState(false)
-    let [allUsers, setAllUsers] = useState([])
+    /* let [allUsers, setAllUsers] = useState([])
+     useEffect(() => {
+        axios.get('https://gmail-clone-be-zsgo.onrender.com')
+            .then((response) => {
+                setAllUsers(response.data)
+             });
+     }, [allUsers])*/
 
-    useEffect(() => {
-        axios.get('http://localhost:4000/allUsers')
-            .then((res) => {
-                setAllUsers(res.data)
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-    }, [])
-
-    function nameValidate() {
-        const name = document.getElementById('name')
-        const nameError = document.getElementById('nameError')
-        if (name.value === '') {
-            nameError.innerText = "*Required"
+    function showPasswordClick() {
+        const password = document.getElementById('password')
+        const cPassword = document.getElementById('cPassword')
+        count++
+        if (count % 2 === 0) {
+            password.setAttribute('type', 'password')
+            cPassword.setAttribute('type', 'password')
         }
         else {
-            nameError.innerText = ""
-
+            password.removeAttribute('type')
+            cPassword.removeAttribute('type')
         }
     }
 
-    function emailValidate() {
-        const email = document.getElementById('email')
-        const emailError = document.getElementById('emailError')
-        if (email.value === '') {
-            emailError.innerText = "*Required"
+    function fNameValidate() {
+        const fName = document.getElementById('fName')
+        const fNameError = document.getElementById('fNameError')
+        if (fName.value === '') {
+            fNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
+        }
+        else if (!isNaN(fName.value)) {
+            fNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Invalid`
         }
         else {
-            emailError.innerText = ""
+            fNameError.innerHTML = ''
+        }
+    }
 
+    function lNameValidate() {
+        const lName = document.getElementById('lName')
+        const lNameError = document.getElementById('lNameError')
+        if (lName.value === '') {
+            lNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
+        }
+        else if (!isNaN(lName.value)) {
+            lNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Invalid`
+        }
+        else {
+            lNameError.innerHTML = ''
+        }
+    }
+
+    function usernameValidate() {
+        const username = document.getElementById('username')
+        const usernameError = document.getElementById('usernameError')
+        if (username.value === '') {
+            usernameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
+        }
+        else {
+            usernameError.innerHTML = ''
         }
     }
 
@@ -52,105 +76,137 @@ function Signup() {
         const password = document.getElementById('password')
         const passwordError = document.getElementById('passwordError')
         if (password.value === '') {
-            passwordError.innerText = "*Required"
+            passwordError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
+        }
+        else if (password.value.length < 9) {
+            passwordError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Password length should be greater than 8`
         }
         else {
-            passwordError.innerText = ""
-
+            passwordError.innerHTML = ''
         }
     }
 
-    function securityCodeValidate() {
-        const securityCode = document.getElementById('securityCode')
-        const securityCodeError = document.getElementById('securityCodeError')
-        if (securityCode.value === '') {
-            securityCodeError.innerText = "*Required"
+    function cPasswordValidate() {
+        const cPassword = document.getElementById('cPassword')
+        const cPasswordError = document.getElementById('cPasswordError')
+        if (cPassword.value === '') {
+            cPasswordError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
         }
         else {
-            securityCodeError.innerText = ""
-
+            cPasswordError.innerHTML = ''
         }
     }
 
-    async function registerClick() {
-        const name = document.getElementById('name')
-        const nameError = document.getElementById('nameError')
-        const email = document.getElementById('email')
-        const emailError = document.getElementById('emailError')
+    function securityKeyValidate() {
+        const securityKey = document.getElementById('securityKey')
+        const securityKeyError = document.getElementById('securityKeyError')
+        if (securityKey.value === '') {
+            securityKeyError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
+        }
+        else {
+            securityKeyError.innerHTML = ''
+        }
+    }
+
+    function nextClick() {
+        const fName = document.getElementById('fName')
+        const fNameError = document.getElementById('fNameError')
+        const lName = document.getElementById('lName')
+        const lNameError = document.getElementById('lNameError')
+        const username = document.getElementById('username')
+        const usernameError = document.getElementById('usernameError')
         const password = document.getElementById('password')
         const passwordError = document.getElementById('passwordError')
-        const securityCode = document.getElementById('securityCode')
-        const securityCodeError = document.getElementById('securityCodeError')
+        const cPassword = document.getElementById('cPassword')
+        const cPasswordError = document.getElementById('cPasswordError')
+        const securityKey = document.getElementById('securityKey')
+        const securityKeyError = document.getElementById('securityKeyError')
         const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/
-        if (name.value === '') {
-            nameError.innerText = "*Required"
+
+        if (fName.value === '') {
+            fNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
         }
         else {
-            if (!isNaN(name.value)) {
-                nameError.innerText = "*Invalid"
+            if (!isNaN(fName.value)) {
+                fNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Invalid`
             }
             else {
-                nameError.innerText = ""
+                fNameError.innerHTML = ''
             }
         }
-        if (email.value === '') {
-            emailError.innerText = "*Required"
+        if (lName.value === '') {
+            lNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
         }
         else {
-            if (email.value.match(emailPattern)) {
-                emailError.innerText = ""
+            if (!isNaN(lName.value)) {
+                lNameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Invalid`
             }
             else {
-                emailError.innerText = "*Invalid"
+                lNameError.innerHTML = ''
+            }
+        }
+        if (username.value === '') {
+            usernameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
+        }
+        else {
+            if (username.value.match(emailPattern)) {
+                usernameError.innerHTML = ''
+            }
+            else {
+                usernameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Invalid`
             }
         }
         if (password.value === '') {
-            passwordError.innerText = "*Required"
+            passwordError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
         }
         else {
-            if (password.value.length < 6) {
-                passwordError.innerText = "*Password should be greater than 5 characters"
+            if (password.value.length < 9 || password.value.length > 15) {
+                passwordError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Password length should be between 9 to 15`
             }
             else {
-                passwordError.innerText = ""
+                passwordError.innerHTML = ''
             }
         }
-        if (securityCode.value === '') {
-            securityCodeError.innerText = "*Required"
+        if (cPassword.value === '') {
+            cPasswordError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
         }
         else {
-            if (securityCode.value.length < 6) {
-                securityCodeError.innerText = "*security code should be greater than 5 characters"
+            if (password.value !== cPassword.value) {
+                cPasswordError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Password should be same`
             }
             else {
-                securityCodeError.innerText = ""
+                cPasswordError.innerHTML = ''
             }
         }
-        if (nameError.innerText === "" && emailError.innerText === "" && passwordError.innerText === "" && securityCodeError.innerText === "") {
-            var userId = 1;
-            if (allUsers.length) {
-                userId = allUsers[0].userId + 1
+        if (securityKey.value === '') {
+            securityKeyError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Required`
+        }
+        else {
+            if (securityKey.value.length < 5 || securityKey.value.length > 15) {
+                securityKeyError.innerHTML = '<i class="fa-sharp fa-solid fa-circle-exclamation"></i> Should be between 5 to 10'
             }
-            let userSignupDetails = {
-                userId: userId,
-                name: name.value,
-                email: email.value,
-                password: password.value,
-                securityCode: securityCode.value,
+            else {
+                securityKeyError.innerHTML = ''
             }
-            await axios.post('http://localhost:4000/signup', userSignupDetails)
-                .then((res) => {
-                    if (res.data.message === "Email address already exist") {
-                        emailError.innerText = "*Email address already exist"
-                        setTimeout(() => {
-                            emailError.innerText = ""
-                        }, 2500);
+        }
+        if (fNameError.innerHTML === '' && lNameError.innerHTML === '' && usernameError.innerHTML === '' && passwordError.innerHTML === '' && cPasswordError.innerHTML === '' && securityKeyError.innerHTML === '') {
+            axios.get(`https://backend-gmail-userport.onrender.com/login/${username.value}`)
+                .then((response) => {
+                    console.log(response);
+                    console.log(response.data.message);
+                    if (response.data.message === "user found") {
+                        usernameError.innerHTML = `<i class="fa-sharp fa-solid fa-circle-exclamation"></i> This Email Id already exist, use different`
                     }
                     else {
-                        setOpen(true)
-                        setTimeout(() => {
-                            navigate('/')
-                        }, 2500);
+                        let userSignupData = {
+                            firstName: fName.value,
+                            lastName: lName.value,
+                            username: username.value,
+                            password: password.value,
+                            securityKey: securityKey.value
+                        }
+                        sessionStorage.setItem('userSignupData', JSON.stringify(userSignupData))
+                        navigate('/phone-number')
                     }
                 })
                 .catch((error) => {
@@ -158,122 +214,69 @@ function Signup() {
                 })
         }
     }
-
-    function showPasswordClick() {
-        const password = document.getElementById('password');
-        const securityCode = document.getElementById('securityCode');
-        count++;
-        if (count % 2 === 0) {
-            password.setAttribute('type', 'password')
-            securityCode.setAttribute('type', 'password')
-        }
-        else {
-            password.removeAttribute('type')
-            securityCode.removeAttribute('type')
-        }
-    }
-
-    const response = async (res) => {
-        let password = '';
-        let userObject = jwtDecode(res.credential);
-        let signupError = document.getElementById('signupError');
-        await axios.get(`http://localhost:6000/login?email=${userObject.email}&password=${password}`)
-            .then((res) => {
-                if (res.data.message === "Login Successful") {
-                    signupError.innerText = "*Email address already exist"
-                    setTimeout(() => {
-                        signupError.innerText = ""
-                    }, 3000);
-                }
-                else {
-                    var userId = 1;
-                    if (allUsers.length) {
-                        userId = allUsers[0].userId + 1
-                    }
-                    let userSignupDetails = {
-                        userId: userId,
-                        name: userObject.name,
-                        email: userObject.email
-                    }
-                    async function userSignup() {
-                        await axios.post('http://localhost:6000/signup', userSignupDetails)
-                            .then((res) => {
-                                setOpen(true)
-                                setTimeout(() => {
-                                    navigate('/')
-                                }, 2500);
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                            })
-                    }
-                    userSignup()
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-    }
-
-    const error = (error) => {
-        console.log(error)
-    }
-
-    const handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setOpen(false);
-    }
-
-    const action = (
-        <React.Fragment>
-            <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
-                <CloseIcon fontSize="small" />
-            </IconButton>
-        </React.Fragment>
-    )
     return (
         <>
-            <div className="mainSignupDiv shadow rounded">
-                <div className='text-center'>
-                    <h3 className='text-primary'>Sign Up</h3>
-                </div>
-                <div>
-                    <label htmlFor="name" className="form-label">Name</label>
-                    <input type="text" className="form-control" id="name" aria-describedby="emailHelp" autoComplete='off' onKeyUp={() => nameValidate()} />
-                    <span id='nameError' className='text-danger'></span>
-                </div>
-                <div className='mt-3'>
-                    <label htmlFor="email" className="form-label">Email address</label>
-                    <input type="text" className="form-control" id="email" aria-describedby="emailHelp" autoComplete='off' onKeyUp={() => emailValidate()} />
-                    <span id='emailError' className='text-danger'></span>
-                </div>
-                <div className='mt-3'>
-                    <label htmlFor="password" className="form-label">Password</label>
-                    <input type="password" className="form-control" id="password" aria-describedby="emailHelp" autoComplete='off' onKeyUp={() => passwordValidate()} />
-                    <span id='passwordError' className='text-danger'></span>
-                </div>
-                <div className='mt-3'>
-                    <label htmlFor="securityCode" className="form-label">Account security code</label>
-                    <input type="password" className="form-control" id="securityCode" aria-describedby="emailHelp" autoComplete='off' onKeyUp={() => securityCodeValidate()} />
-                    <span id='securityCodeError' className='text-danger'></span>
-                </div>
-                <div className='mt-3'>
-                    <input className="form-check-input" type="checkbox" id="flexCheckDefault" onClick={() => showPasswordClick()} /> Show password & security code
-                </div>
-                <div className='text-center mt-3'>
-                    <span className="text-danger" id='signupError'></span><br />
-                    <button type="button" className="btn btn-outline-primary mt-3" onClick={() => { registerClick() }}>Register</button>
-                    <div className="" style={{ width: 'fit-content', marginLeft: '65px', marginTop: '10px' }}>
-                        <GoogleLogin onSuccess={response} onError={error} />
+            <div className="container col-7 shadow rounded position-absolute top-50 start-50 translate-middle">
+                <div className='m-4'>
+                    <div className='row'>
+                        <div className="col-6">
+                            <div>
+                                <h3 className='mb-1 heading' style={{ fontFamily: 'sans-serif' }}><span className='text-primary'>G</span><span className='text-danger'>o</span><span className='text-warning'>o</span><span className='text-primary'>g</span><span className='text-success'>l</span><span className='text-danger'>e</span></h3>
+                                <p className="fs-4 mb-1">Create your Google Account</p>
+                                <p className="fs-6">to continue to Gmail</p>
+                            </div>
+                            <div className="row mb-4">
+                                <div className="col">
+                                    <TextField label="First name" id="fName" size="small" onKeyUp={() => { fNameValidate() }} />
+                                    <span id='fNameError' className='text-danger'></span>
+                                </div>
+                                <div className="col">
+                                    <TextField label="Last name" id="lName" size="small" onKeyUp={() => { lNameValidate() }} />
+                                    <span id='lNameError' className='text-danger'></span>
+                                </div>
+                            </div>
+                            <div className='mb-4'>
+                                <TextField style={{ width: '100%' }} label="Email Id" id="username" size="small" onKeyUp={() => { usernameValidate() }} />
+                                <span id='usernameError' className='text-danger'></span>
+                                <p>You can use letters, numbers & periods</p>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <TextField label="Password" id="password" size="small" type='password' onKeyUp={() => { passwordValidate() }} />
+                                    <span id='passwordError' className='text-danger'></span>
+                                </div>
+                                <div className="col">
+                                    <TextField label="Confirm" id="cPassword" size="small" type='password' onKeyUp={() => { cPasswordValidate() }} />
+                                    <span id='cPasswordError' className='text-danger'></span>
+                                </div>
+                                <p className='mt-1'>Use 8 or more characters with a mix of letters, numbers & symbols</p>
+                            </div>
+                            <div className='row ms-1 me-1'>
+                                <TextField label="Account Security Key" id="securityKey" size="small" onKeyUp={() => { securityKeyValidate() }} type='password' />
+                                <span id='securityKeyError' className='text-danger'></span>
+                            </div>
+                            <div className='mt-2'>
+                                <FormGroup>
+                                    <FormControlLabel control={<Checkbox />} label="Show password" onClick={() => { showPasswordClick() }} />
+                                </FormGroup>
+                            </div>
+                            <div className='d-flex mt-3 justify-content-between' >
+                                <div >
+                                    <Button variant="text" href="/login">Sign in instead</Button>
+                                </div>
+                                <div>
+                                    <button className='btn btn-primary' onClick={() => { nextClick() }}>Next</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col position-absolute top-50 end-0 translate-middle-y text-center pb-5" style={{ width: '320px', height: '320px', marginRight: '80px' }}>
+                            <img src="https://ssl.gstatic.com/accounts/signup/glif/account.svg" alt="" style={{ width: '100%', height: '100%' }} />
+                            <p className='m-0'>One account. All of Google</p>
+                            <p className='m-0'>working for you.</p>
+                        </div>
                     </div>
-                    <h6 className='mt-3 hoverText text-primary' onClick={() => { navigate('/') }}>back to login</h6>
                 </div>
             </div>
-            {
-                open ? <Snackbar open={open} autoHideDuration={3000} onClose={handleClose} message="Registration successful" action={action} /> : ''
-            }
         </>
     )
 }
