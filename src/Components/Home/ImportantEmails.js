@@ -1,7 +1,4 @@
 import React, { useState } from 'react'
-import { Modal, ModalBody, ModalHeader } from 'reactstrap'
-import { Button, TextField } from '@mui/material'
-import SendIcon from '@mui/icons-material/Send';
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
 import axios from 'axios'
@@ -9,20 +6,17 @@ import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-function DraftEmails() {
+function ImportantEmails() {
+    let [openEmail, setOpenEmail] = useState(false)
+    let [topIcons, setTopIcons] = useState(false)
+    let [viewEmail, setViewEmail] = useState([])
     let [allEmails, setAllEmails] = useState([])
-    let [viewDraftEmail, setViewDraftEmail] = useState([])
-    let [modal, setModal] = useState(false)
-    let [popup, setPopup] = useState(false)
     let [open, setOpen] = useState(false)
     let [popupMessage, setPopupMessage] = useState('')
-
-    const userFirstName = sessionStorage.getItem('userFirstName')
-    const userLastName = sessionStorage.getItem('userLastName')
-    const userEmail = sessionStorage.getItem('userEmail')
+    let userEmail = sessionStorage.getItem('userEmail');
 
     // useEffect(() => {
-        axios(`https://backend-gmail-cloneport.onrender.com/getEmails/${userEmail}`)
+        axios.get(`https://backend-gmail-cloneport.onrender.com/getEmails/${userEmail}`)
             .then((response) => {
                 setAllEmails(response.data)
             })
@@ -31,56 +25,90 @@ function DraftEmails() {
             })
     // }, [setAllEmails, userEmail])
 
-    let draftEmails = allEmails.length ? allEmails.filter((e) => e.draftEmail === true) : ''
+    let importantEmails = allEmails.length ? allEmails.filter((e) => e.important === true) : ''
 
-    function openDraftEmail(email) {
-        setViewDraftEmail(email)
-        console.log(viewDraftEmail);
-        setModal(true)
-    }
-
-    function modalClose() {
-        setModal(!modal)
-    }
-
-    function deleteDraftEmail(email) {
-        const trashEmailDetails = {
-            trash: true,
-            starred: false,
-            important: false,
-            read: null,
-            spam: false,
-            draftEmail: false
+    function markStarClick(email) {
+        let emailInfo = allEmails.filter((e) => e._id === email._id)
+        if (emailInfo[0].starred === true) {
+            setPopupMessage('Email already marked as star')
+            handleClick()
         }
-        axios.put(`https://backend-gmail-cloneport.onrender.com/updateEmailInfo/${email._id}`, trashEmailDetails)
+        else {
+            let updatedEmailDetails = {
+                starred: true
+            }
+            axios.put(`https://backend-gmail-cloneport.onrender.com/updateEmailInfo/${email._id}`, updatedEmailDetails)
+                .then((response) => {
+                    setPopupMessage('Email marked as star')
+                    handleClick()
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+        }
+    }
+
+    function removeFromImportantClick(email) {
+        let updatedEmailDetails = {
+            important: false
+        }
+        axios.put(`https://backend-gmail-cloneport.onrender.com/updateEmailInfo/${email._id}`, updatedEmailDetails)
             .then((response) => {
-                setPopupMessage('Draft Email successfully deleted')
+                // console.log(response.data);
+                setPopupMessage('Email removed from important')
                 handleClick()
+                setOpenEmail(false)
+                setTopIcons(false)
             })
             .catch((error) => {
                 console.log(error);
             })
     }
 
-    function sendEmailClick() {
-        const emailTo = document.getElementById('emailTo')
-        const emailSubject = document.getElementById('emailSubject')
-        const emailBody = document.getElementById('emailBody')
-        let sendingEmailDetails = {
-            emailTo: emailTo.value,
-            emailFrom: userEmail,
-            emailSenderName: userFirstName + ' ' + userLastName,
-            emailSubject: emailSubject.value,
-            emailBody: emailBody.value,
-            emailDateTime: new Date().toLocaleString(),
-            read: false,
-            draftEmail: false
+    function deleteClick(email) {
+        const trashEmailDetails = {
+            trash: true,
+            starred: false,
+            important: false,
+            read: null,
+            spam: false
         }
-        axios.post('https://backend-gmail-cloneport.onrender.com/newEmail', sendingEmailDetails)
+        axios.put(`https://backend-gmail-cloneport.onrender.com/updateEmailInfo/${email._id}`, trashEmailDetails)
             .then((response) => {
-                setModal(false)
-                setPopupMessage("Email sent")
+                setPopupMessage('Email successfully deleted')
                 handleClick()
+                setOpenEmail(false)
+                setTopIcons(false)
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
+
+    function emailClick(email) {
+        setOpenEmail(true)
+        setTopIcons(true)
+        setViewEmail(email)
+    }
+
+    function backClick() {
+        setOpenEmail(false)
+        setTopIcons(false)
+    }
+
+    function reportSpamClick(viewEmail) {
+        let spamEmail = {
+            starred: false,
+            important: false,
+            read: null,
+            spam: true
+        }
+        axios.put(`https://backend-gmail-cloneport.onrender.com/updateEmailInfo/${viewEmail._id}`, spamEmail)
+            .then((response) => {
+                setPopupMessage('Email marked as spam')
+                handleClick()
+                setOpenEmail(false)
+                setTopIcons(false)
             })
             .catch((error) => {
                 console.log(error);
@@ -103,70 +131,68 @@ function DraftEmails() {
             </IconButton>
         </React.Fragment>
     );
-
     return (
         <>
-            {/* compose new email modal start */}
-            <Modal size='lg' isOpen={modal} toggle={() => { modalClose() }}>
-                <ModalHeader toggle={() => { modalClose() }}>Draft Message</ModalHeader>
-                <ModalBody>
-                    <div className="container border border-secondary rounded">
-                        <div>
-                            <div className='mt-2 d-flex justify-content-center'>
-                                <TextField id="emailTo" label="To" variant="standard" style={{ width: '80%' }} value={viewDraftEmail.emailTo} />
-                            </div>
-                            <span className="text-danger" id='emailToError'></span>
-                        </div>
-                        <div className='d-flex justify-content-center'>
-                            <TextField id="emailSubject" label="Subject" variant="standard" style={{ width: '80%' }} value={viewDraftEmail.emailSubject} />
-                        </div>
-                        <div className='mt-2 d-flex justify-content-center'>
-                            <TextField id="emailBody" label="Email body" multiline rows={9} variant="standard" style={{ width: '80%' }} value={viewDraftEmail.emailBody} />
-                        </div>
-                        <div className='d-flex justify-content-start mt-3 mb-3' style={{ marginLeft: '75px' }}>
-                            <Button variant="contained" endIcon={<SendIcon />} onClick={() => sendEmailClick()}>Send</Button>
-                            <i className="ms-4 mt-2 fa-solid fa-font fs-5 icon" title='Formatting options'></i>
-                            <i className="ms-4 mt-2 fa-solid fa-paperclip fs-5 icon" title='Attach files'></i>
-                            <i className="ms-4 mt-2 fa-regular fa-face-smile fs-5 icon" title='Insert emoji'></i>
-                            <i className="ms-4 mt-2 fa-regular fa-image fs-5 icon" title='Insert photo'></i>
-                            <i className="mt-2 fa-regular fa-trash-can fs-5 icon delete" style={{ marginLeft: '313px' }} title='Delete'></i>
-                        </div>
-                    </div>
-                </ModalBody>
-            </Modal>
-            {/* compose new email modal end */}
-
-            {/* email sent popup modal start */}
-            <Modal size='sm' isOpen={popup} toggle={() => setPopup(!popup)}>
-                <ModalHeader toggle={() => setPopup(!popup)}><b>Email sent</b></ModalHeader>
-            </Modal>
-            {/* email sent popup modal end */}
-
             <Navbar />
             <div style={{ marginTop: '30px' }}>
                 <div className='row'>
                     <Sidebar />
                     <div className='col border border-dark rounded' style={{ minHeight: '600px', marginRight: '40px' }}>
-                        <div className='mt-2'>
-                            <i className="fs-5 fa-solid fa-arrow-rotate-right icon" title='Refresh'></i>
-                        </div>
-                        <h5 className='mt-2'>Draft Emails</h5>
-                        <div className="" style={{ maxHeight: "510px", overflowY: 'auto' }}>
+                        <div className='mt-3 ms-1'>
                             {
-                                draftEmails.length ? draftEmails.map((e, i) => {
-                                    return (
-                                        <div key={i} className="row mt-3 mb-1 p-1 unreadMail rounded-3" style={{ marginLeft: '1px', marginRight: '1px' }} >
-                                            <div className='col icon' style={{ maxWidth: '100%', overflow: 'auto' }} onClick={() => { openDraftEmail(e) }}>
-                                                <span>{e.emailSubject}</span> <span>{e.emailBody}</span>
-                                            </div>
-                                            <div className='col-1 '>
-                                                <i className="fs-5 fa-regular fa-trash-can icon delete" title='Delete' onClick={() => { deleteDraftEmail(e) }}></i>
-                                            </div>
-                                        </div>
-                                    )
-                                }) : ''
+                                topIcons ?
+                                    <div>
+                                        <i className="fs-5 fa-solid fa-arrow-left ms-3 icon" title='Back to Inbox' onClick={() => { backClick() }}></i>
+                                        <i className="fs-5 fa-solid fa-circle-exclamation ms-5 icon delete" title='Report spam' onClick={() => { reportSpamClick(viewEmail) }}></i>
+                                        <i className="fs-5 fa-regular fa-trash-can ms-5 icon delete" title='Delete' onClick={() => { deleteClick(viewEmail) }}></i>
+                                    </div> :
+                                    <i className="fs-5 fa-solid fa-arrow-rotate-right icon" title='Refresh'></i>
                             }
                         </div>
+                        {
+                            openEmail ?
+                                <div>
+                                    {
+                                        <div className='mt-3'>
+                                            <div className='ms-3'>
+                                                <p className='fs-4'>{viewEmail.emailSubject} <i className="fa-solid fa-tag fs-4 icon" title='Mark as important' onClick={() => { removeFromImportantClick(viewEmail) }}></i></p>
+                                            </div>
+                                            <div className='ms-3 d-flex justify-content-start'>
+                                                <div className='mt-2'>
+                                                    <i className="fa-regular fa-circle-user fs-4" ></i>
+                                                </div>
+                                                <div className='ms-2'>
+                                                    <p className='fs-5'>{viewEmail.emailSenderName} {viewEmail.emailFrom}</p>
+                                                </div>
+                                            </div>
+                                            <div className='col-10 ms-3 fs-6 mb-3' style={{ height: '400px', overflowY: 'auto' }}>{viewEmail.emailBody}</div>
+                                        </div>
+                                    }
+                                </div> :
+                                <div>
+                                    <h5 className='mt-2'>Important Emails</h5>
+                                    <div className="" style={{ maxHeight: "510px", overflowY: 'auto' }}>
+                                        {
+                                            importantEmails.length ? importantEmails.map((e, i) => {
+                                                return (
+                                                    <div key={i} className="row mt-3 mb-1 p-1 unreadMail rounded-3" style={{ marginLeft: '1px', marginRight: '1px' }} >
+                                                        <div className='col-1'>
+                                                            <i className="fs-5 fa-regular fa-star icon" title='Star' onClick={() => { markStarClick(e) }}></i>
+                                                            <i className="fs-5 fa-solid fa-tag ms-4 icon" title='Remove from Important' onClick={() => { removeFromImportantClick(e) }}></i>
+                                                        </div>
+                                                        <div className='col icon' style={{ maxWidth: '100%', overflow: 'auto' }} onClick={() => { emailClick(e) }}  >
+                                                            <span>{e.emailSubject}</span> <span>{e.emailBody}</span>
+                                                        </div>
+                                                        <div className='col-1 '>
+                                                            <i className="fs-5 fa-regular fa-trash-can icon delete" title='Delete' onClick={() => { deleteClick(e) }}></i>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            }) : ''
+                                        }
+                                    </div>
+                                </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -175,4 +201,4 @@ function DraftEmails() {
     )
 }
 
-export default DraftEmails
+export default ImportantEmails
