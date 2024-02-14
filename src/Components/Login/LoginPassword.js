@@ -87,7 +87,7 @@ function LoginPassword() {
                         </FormGroup>
                     </div>
                     <div className='text-center mt-3'>
-                        Test password: userone@12345
+                        Test password: user@12345
                     </div>
                     <div className='d-flex justify-content-between' style={{ marginTop: '30px' }}>
                         <div >
