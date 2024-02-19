@@ -206,7 +206,7 @@ function Signup() {
                             securityKey: securityKey.value
                         }
                         sessionStorage.setItem('userSignupData', JSON.stringify(userSignupData))
-                        navigate('/phone-number')
+                       navigate('/basic-information')
                     }
                 })
                 .catch((error) => {

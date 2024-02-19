@@ -4,7 +4,7 @@ import ForgotEmail from './Components/Forgotemail/ForgotEmail';
 import Signup from './Components/Signup/Signup';
 import LoginPassword from './Components/Login/LoginPassword';
 import ForgotEmailNameDetails from './Components/Forgotemail/ForgotEmailNameDetails';
-import SignupPhoneNumber from './Components/Signup/SignupPhoneNumber';
+
 import SignupBasicInfo from './Components/Signup/SignupBasicInfo';
 import SignupPrivacyTerms from './Components/Signup/SignupPrivacyTerms';
 import ForgotEmailError from './Components/Forgotemail/ForgotEmailError';
@@ -35,7 +35,7 @@ function App() {
 
         {/* signup */}
         <Route path='/signup' element={<Signup />} />
-        <Route path='/phone-number' element={<SignupPhoneNumber />} />
+        
         <Route path='/basic-information' element={<SignupBasicInfo />} />
         <Route path='/privacy-terms' element={<SignupPrivacyTerms />} />
 
